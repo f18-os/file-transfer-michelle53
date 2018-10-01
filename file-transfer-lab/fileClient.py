@@ -2,11 +2,16 @@
 
 # Echo client program
 import socket, sys, re
+
 sys.path.append("../lib")       # for params
 import params
 
+from framedSock import framedSend, framedReceive
+
+
 switchesVarDefaults = (
     (('-s', '--server'), 'server', "127.0.0.1:50001"),
+    (('-d', '--debug'), "debug", False), # boolean (set if present)
     (('-?', '--usage'), "usage", False), # boolean (set if present)
     )
 
@@ -14,10 +19,11 @@ switchesVarDefaults = (
 progname = "framedClient"
 paramMap = params.parseParams(switchesVarDefaults)
 
-server, usage  = paramMap["server"], paramMap["usage"]
+server, usage, debug  = paramMap["server"], paramMap["usage"], paramMap["debug"]
 
 if usage:
     params.usage()
+
 
 try:
     serverHost, serverPort = re.split(":", server)
@@ -50,33 +56,18 @@ if s is None:
     print('could not open socket')
     sys.exit(1)
 
+file_name = input('File to send: ')
+f = open( file_name, 'rb' )
+data = f.read(100)
+while data:
+    s.send(data)
+    data = f.read(100)
 
-file_out = input('File to send: ')
-file_to_out = open( file_out, 'r' )
- 
-#s.send( file_to_out.read().encode() )
-lines = file_to_out.readlines()
-
-for line in lines:
-    s.send( line.encode() )
-
-
-'''outMessage = "Hello world!"
-
-print("sending '%s'" % outMessage)
-s.send(outMessage.encode())
-
-data = s.recv(1024).decode()'''
-
-s.shutdown(socket.SHUT_WR)      # no more output
-
-
-
-'''while 1:
-    data = s.recv(100).decode()
-    #print("Received '%s'" % data)
-    if len(data) == 0:
-        break
-print("Zero length read.  Closing")
-'''
+f.close()
 s.close()
+
+
+
+
+
+    

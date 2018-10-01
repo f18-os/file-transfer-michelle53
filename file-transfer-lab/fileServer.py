@@ -1,39 +1,43 @@
 #! /usr/bin/env python3
 
-# Echo server program
-
-import socket, sys, re
+import sys
 sys.path.append("../lib")       # for params
-import params
+import re, socket, params
 
 switchesVarDefaults = (
     (('-l', '--listenPort') ,'listenPort', 50001),
+    (('-d', '--debug'), "debug", False), # boolean (set if present)
     (('-?', '--usage'), "usage", False), # boolean (set if present)
     )
-
-
 
 progname = "echoserver"
 paramMap = params.parseParams(switchesVarDefaults)
 
-listenPort = paramMap['listenPort']
-listenAddr = ''       # Symbolic name meaning all available interfaces
+debug, listenPort = paramMap['debug'], paramMap['listenPort']
 
 if paramMap['usage']:
     params.usage()
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((listenAddr, listenPort))
-s.listen(1)              # allow only one outstanding request
-# s is a factory for connected sockets
+lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # listener socket
+bindAddr = ("127.0.0.1", listenPort)
+lsock.bind(bindAddr)
+lsock.listen(5)
+print("listening on:", bindAddr)
 
-conn, addr = s.accept()  # wait until incoming connection request (and accept it)
-print('Connected by', addr)
-while 1:
-    data = conn.recv(100).decode()
+
+
+from framedSock import framedSend, framedReceive
+
+file_out = open( 'out', 'wb' )
+while True:
+    sock, addr = lsock.accept()
+    print("connection rec'd from", addr)
+    data = sock.recv( 100 )
     if not data: break
-    sendMsg = "Echoing %s" % data
-    print("Received '%s', sending '%s'" % (data, sendMsg))
-    conn.send(sendMsg.encode())
-conn.close()
+    while(data): # while data is being sent
+        file_out.write(data)
+        data = sock.recv(100)
 
+    file_out.close()
+    sock.send( b'Finished transfer' )
+    sock.close()
