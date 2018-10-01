@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # Echo client program
-import socket, sys, re
+import socket, sys, re, os
 
 sys.path.append("../lib")       # for params
 import params
@@ -57,14 +57,24 @@ if s is None:
     sys.exit(1)
 
 file_name = input('File to send: ')
-f = open( file_name, 'rb' )
-data = f.read(100)
-while data:
-    s.send(data)
-    data = f.read(100)
+if os.path.exists('./' + file_name):
+    print('file already exists in server')
+elif not os.path.exists(file_name):
+    print('file does not exists')
+elif os.path.getsize( file_name) < 0:
+    print( 'file is empty' )
+    s.close()
 
-f.close()
-s.close()
+else:
+    f = open( file_name, 'rb' )    
+    data = f.read(100)
+    while data:
+        if not data: break # check if there is a connection still going
+        s.send(data)
+        data = f.read(100)
+
+        f.close()
+        s.close()
 
 
 

@@ -33,7 +33,7 @@ while True:
     sock, addr = lsock.accept()
     print("connection rec'd from", addr)
     data = sock.recv( 100 )
-    if not data: break
+    if not data: break # check if connection still exists
     while(data): # while data is being sent
         file_out.write(data)
         data = sock.recv(100)
