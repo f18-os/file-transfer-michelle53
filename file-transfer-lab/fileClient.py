@@ -57,9 +57,9 @@ if s is None:
     sys.exit(1)
 
 file_name = input('File to send: ')
-if os.path.exists('./' + file_name):
-    print('file already exists in server')
-elif not os.path.exists(file_name):
+#if os.path.exists('./' + file_name):
+   # print('file already exists in server')
+if not os.path.exists(file_name):
     print('file does not exists')
 elif os.path.getsize( file_name) < 0:
     print( 'file is empty' )
