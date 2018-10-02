@@ -56,25 +56,25 @@ if s is None:
     print('could not open socket')
     sys.exit(1)
 
-file_name = input('File to send: ')
+file_name = input('File to send: ') # get the filename we want to send
 #if os.path.exists('./' + file_name):
    # print('file already exists in server')
-if not os.path.exists(file_name):
+if not os.path.exists(file_name): # file does not exists
     print('file does not exists')
-elif os.path.getsize( file_name) < 0:
+elif os.path.getsize( file_name) < 0: # file is empty
     print( 'file is empty' )
     s.close()
 
 else:
-    f = open( file_name, 'rb' )    
-    data = f.read(100)
-    while data:
+    f = open( file_name, 'rb' ) # open file to read in bytes
+    data = f.read(100) # read only 100 bytes
+    while data: # continue while we are reading
         if not data: break # check if there is a connection still going
         s.send(data)
         data = f.read(100)
 
-    f.close()
-s.close()
+    f.close() # close file
+s.close() # close socket
 
 
 
