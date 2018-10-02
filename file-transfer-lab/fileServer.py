@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import sys
+import sys,os
 sys.path.append("../lib")       # for params
 import re, socket, params
 
@@ -28,16 +28,35 @@ print("listening on:", bindAddr)
 
 from framedSock import framedSend, framedReceive
 
-file_out = open( 'out', 'wb' )
-while True:
-    sock, addr = lsock.accept()
-    print("connection rec'd from", addr)
-    data = sock.recv( 100 )
-    if not data: break # check if connection still exists
-    while(data): # while data is being sent
-        file_out.write(data)
-        data = sock.recv(100)
 
-    file_out.close()
-    sock.send( b'Finished transfer' )
-    sock.close()
+# do the multiple client
+def client_fork():
+
+    while True:
+        sock, addr = lsock.accept()
+        print("connection rec'd from", addr)
+        data = sock.recv( 100 )
+        if not data:
+            break # check if connection still exists
+        while(data): # while data is being sent
+            file_out.write(data)
+            data = sock.recv(100)
+
+        file_out.close()
+        sock.send( b'Finished transfer' )
+        sock.close()
+
+i = 0
+while True:
+    rc = os.fork()
+    if rc < 0:
+        print('error')
+        sys.exit(1)
+    elif rc == 0: # child
+        file_out = open( 'out_' + str( i ) , 'wb' )
+        i = i + 1
+        client_fork()
+    else:
+        child = os.wait()
+
+

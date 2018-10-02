@@ -73,8 +73,8 @@ else:
         s.send(data)
         data = f.read(100)
 
-        f.close()
-        s.close()
+    f.close()
+s.close()
 
 
 
