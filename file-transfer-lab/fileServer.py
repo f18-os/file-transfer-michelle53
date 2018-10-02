@@ -36,7 +36,7 @@ def client_fork():
         sock, addr = lsock.accept()
         print("connection rec'd from", addr)
         data = sock.recv( 100 )
-        if not data:
+        if not data: # check if data is being recieved
             break # check if connection still exists
         while(data): # while data is being sent
             file_out.write(data)
@@ -46,16 +46,16 @@ def client_fork():
         sock.send( b'Finished transfer' )
         sock.close()
 
-i = 0
+i = 0 # keep track of file written
 while True:
-    rc = os.fork()
+    rc = os.fork() # fork
     if rc < 0:
         print('error')
         sys.exit(1)
     elif rc == 0: # child
         file_out = open( 'out_' + str( i ) , 'wb' )
         i = i + 1
-        client_fork()
+        client_fork() # write to file
     else:
         child = os.wait()
 
